@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"dev.vvalio.gifter","l":"ExchangeConfiguration"},{"p":"dev.vvalio.gifter","l":"ExchangeEvent"},{"p":"dev.vvalio.gifter","l":"ExchangeEventConstraintProvider"},{"p":"dev.vvalio.gifter","l":"ExchangeRules"},{"p":"dev.vvalio.gifter","l":"Participant"}];updateSearchResults();
