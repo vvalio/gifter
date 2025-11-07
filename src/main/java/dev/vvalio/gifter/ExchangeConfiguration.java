@@ -7,8 +7,12 @@ import org.optaplanner.core.config.solver.SolverConfig;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Configuration for the solver. Use this instead of the individual {@link Participant} and
@@ -16,19 +20,28 @@ import java.util.Objects;
  *
  * @author vvalio
  */
-public class ExchangeConfiguration {
+class ExchangeConfiguration {
     private final List<Participant> participants = new ArrayList<>();
+    private final Map<String, Set<String>> blacklist = new HashMap<String, Set<String>>();
     private final ExchangeRules exchangeRules;
 
-    public ExchangeConfiguration(ExchangeRules exchangeRules) {
-        this(exchangeRules, null);
+    public ExchangeConfiguration(ExchangeRules exchangeRules, Collection<Participant> initialParticipants) {
+        this(exchangeRules, initialParticipants, null);
     }
 
-    public ExchangeConfiguration(ExchangeRules exchangeRules, Collection<Participant> initialParticipants) {
+    public ExchangeConfiguration(ExchangeRules exchangeRules, Collection<Participant> initialParticipants, Map<String, Set<String>> blacklist) {
         this.exchangeRules = exchangeRules;
         if (initialParticipants != null) {
             participants.addAll(initialParticipants);
         }
+
+        if (blacklist != null) {
+            this.blacklist.putAll(blacklist);
+        }
+    }
+
+    public Map<String, Set<String>> getBlacklist() {
+        return Collections.unmodifiableMap(blacklist);
     }
 
     public List<Participant> getParticipants() {
@@ -51,6 +64,12 @@ public class ExchangeConfiguration {
             final var exchange = new SingularGiftExchange();
             exchange.setFrom(participant);
             exchange.setId(counter++);
+            exchange.rules = exchangeRules;
+
+            // Only add the blacklisted receiver for the participant if blacklisting is enabled
+            if (exchangeRules.blacklist()) {
+                exchange.blacklistedReceivers = blacklist.get(exchange.getFrom().id());
+            }
 
             result.add(exchange);
         }
@@ -64,7 +83,7 @@ public class ExchangeConfiguration {
      * @return the exchange event to be solved
      */
     public ExchangeEvent toEvent() {
-        return new ExchangeEvent(ExchangeEventConstraintConfiguration.getInstance(exchangeRules), participants, createExchanges());
+        return new ExchangeEvent(participants, createExchanges());
     }
 
     /**

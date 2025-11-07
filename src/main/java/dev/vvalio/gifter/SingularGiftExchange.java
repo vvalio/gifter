@@ -5,6 +5,7 @@ import org.optaplanner.core.api.domain.lookup.PlanningId;
 import org.optaplanner.core.api.domain.variable.PlanningVariable;
 
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Represents a single gift exchange from one participant to another.
@@ -20,6 +21,12 @@ class SingularGiftExchange {
 
     @PlanningVariable(valueRangeProviderRefs = "personOptions")
     private Participant to;
+
+    // The rules currently in place, filled in later
+    ExchangeRules rules;
+
+    // Blacklisted receivers, if any. ID.
+    Set<String> blacklistedReceivers;
 
     /**
      * Creates a new gift exchange.

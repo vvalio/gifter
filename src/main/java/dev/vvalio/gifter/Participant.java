@@ -7,11 +7,7 @@ import org.optaplanner.core.api.domain.lookup.PlanningId;
  *
  * @author vvalio
  */
-public class Participant {
-    private final String name;
-    private final String id;
-    private final String familyId;
-
+public record Participant(String name, String id, String familyId) {
     /**
      * Creates a new participant.
      *
@@ -19,10 +15,7 @@ public class Participant {
      * @param id       a shorter ID for the participant
      * @param familyId any identifier used to deduce if two participants are in the same family or not
      */
-    public Participant(String name, String id, String familyId) {
-        this.name = name;
-        this.id = id;
-        this.familyId = familyId;
+    public Participant {
     }
 
     /**
@@ -36,24 +29,26 @@ public class Participant {
             return false;
         }
 
-        return familyId.equals(other.getFamilyId());
+        return familyId.equals(other.familyId());
     }
 
-    public String getName() {
-        return name;
-    }
-
+    @Override
     @PlanningId
-    public String getId() {
+    public String id() {
         return id;
-    }
-
-    public String getFamilyId() {
-        return familyId;
     }
 
     @Override
     public String toString() {
         return "[%s %s %s]".formatted(id, name, familyId);
+    }
+
+    /**
+     * Distinct method to check if the other participant effectively represents the same person as {@code this}.
+     *
+     * @param other the other participant
+     */
+    public boolean isSamePerson(Participant other) {
+        return id.equals(other.id);
     }
 }

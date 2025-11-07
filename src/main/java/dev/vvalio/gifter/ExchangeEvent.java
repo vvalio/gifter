@@ -1,6 +1,5 @@
 package dev.vvalio.gifter;
 
-import org.optaplanner.core.api.domain.constraintweight.ConstraintConfigurationProvider;
 import org.optaplanner.core.api.domain.solution.PlanningEntityCollectionProperty;
 import org.optaplanner.core.api.domain.solution.PlanningScore;
 import org.optaplanner.core.api.domain.solution.PlanningSolution;
@@ -16,7 +15,7 @@ import java.util.List;
  * @author vvalio
  */
 @PlanningSolution
-public class ExchangeEvent {
+class ExchangeEvent {
     @ValueRangeProvider(id = "personOptions")
     @ProblemFactCollectionProperty
     private List<Participant> participants;
@@ -27,11 +26,7 @@ public class ExchangeEvent {
     @PlanningScore
     private HardMediumSoftScore score;
 
-    @ConstraintConfigurationProvider
-    private ExchangeEventConstraintConfiguration constraintConfiguration;
-
-    ExchangeEvent(ExchangeEventConstraintConfiguration constraintConfiguration, List<Participant> participants, List<SingularGiftExchange> exchanges) {
-        this.constraintConfiguration = constraintConfiguration;
+    ExchangeEvent(List<Participant> participants, List<SingularGiftExchange> exchanges) {
         this.participants = participants;
         this.exchanges = exchanges;
     }
@@ -45,6 +40,10 @@ public class ExchangeEvent {
 
     public HardMediumSoftScore getScore() {
         return score;
+    }
+
+    List<SingularGiftExchange> getExchanges() {
+        return exchanges;
     }
 
     @Override

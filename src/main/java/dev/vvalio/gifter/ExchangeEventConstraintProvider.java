@@ -14,6 +14,7 @@ public class ExchangeEventConstraintProvider implements ConstraintProvider {
                 selfGiftingConflict(constraintFactory),
                 sameFamilyConflict(constraintFactory),
                 giftEachOtherConflict(constraintFactory),
+                blacklistConflict(constraintFactory),
         };
     }
 
@@ -26,8 +27,8 @@ public class ExchangeEventConstraintProvider implements ConstraintProvider {
     private Constraint sameFamilyConflict(ConstraintFactory constraintFactory) {
         return constraintFactory
                 .forEach(SingularGiftExchange.class)
-                .filter(assignment -> assignment.getFrom().isInSameFamily(assignment.getTo()))
-                .penalizeConfigurable().asConstraint("Same family");
+                .filter(assignment -> !assignment.rules.allowSameFamily() && assignment.getFrom().isInSameFamily(assignment.getTo()))
+                .penalize(HardMediumSoftScore.ONE_HARD).asConstraint("Same family");
     }
 
     private Constraint selfGiftingConflict(ConstraintFactory constraintFactory) {
@@ -41,6 +42,15 @@ public class ExchangeEventConstraintProvider implements ConstraintProvider {
         return constraintFactory.forEachUniquePair(SingularGiftExchange.class,
                         Joiners.equal(SingularGiftExchange::getFrom, SingularGiftExchange::getTo),
                         Joiners.equal(SingularGiftExchange::getTo, SingularGiftExchange::getFrom))
-                .penalizeConfigurable().asConstraint("Each other");
+                .filter((assignment, ignored) -> !assignment.rules.allowEachOther())
+                .penalize(HardMediumSoftScore.ONE_HARD).asConstraint("Each other");
+    }
+
+    private Constraint blacklistConflict(ConstraintFactory constraintFactory) {
+        return constraintFactory.forEach(SingularGiftExchange.class)
+                .filter(
+                        assignment -> assignment.blacklistedReceivers != null
+                                && assignment.blacklistedReceivers.contains(assignment.getTo().id()))
+                .penalize(HardMediumSoftScore.ONE_HARD).asConstraint("Blacklist");
     }
 }
